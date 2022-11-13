@@ -36,6 +36,14 @@ public:
     // Frees the memory associated with this matrix.
     ~ALMat();
 
+    // Operator: []
+    // Returns the vector at the given index.
+    ALVec<T>& operator[](int index);
+
+    // Operator: [][]
+    // Returns the element at the given row and column.
+    T& operator()(int row, int col);
+
     // Operator: +
     // Adds the given matrix to this matrix and returns the result.
     ALMat<T> operator+(const ALMat<T>& m);
@@ -171,6 +179,22 @@ ALMat<T>::~ALMat()
 {
 }
 
+// Operator: []
+// Returns the vector at the given index.
+template <class T>
+ALVec<T>& ALMat<T>::operator[](int index)
+{
+    return ALVec<ALVec<T> >::operator[](index);
+}
+
+// Operator: [][]
+// Returns the element at the given row and column.
+template <class T>
+T& ALMat<T>::operator()(int row, int col)
+{   
+    return ALVec<ALVec<T> >::operator[](row)[col];
+}
+
 // Operator: +
 // Adds the given matrix to this matrix and returns the result.
 template <class T>
@@ -281,8 +305,8 @@ void ALMat<T>::zeros(int rows, int cols)
     this->clear();
     for (int i = 0; i < rows; i++)
     {
-        ALVec<T> v(cols);
-        v.zeros();
+        ALVec<T> v;
+        v.zeros(cols);
         this->add(v);
     }
 }
@@ -293,8 +317,8 @@ void ALMat<T>::ones(int rows, int cols)
     this->clear();
     for (int i = 0; i < rows; i++)
     {
-        ALVec<T> v(cols);
-        v.ones();
+        ALVec<T> v;
+        v.ones(cols);
         this->add(v);
     }
 }
@@ -305,8 +329,8 @@ void ALMat<T>::identity(int size)
     this->clear();
     for (int i = 0; i < size; i++)
     {
-        ALVec<T> v(size);
-        v.zeros();
+        ALVec<T> v;
+        v.zeros(size);
         v.set(i, 1);
         this->add(v);
     }
@@ -320,8 +344,7 @@ void ALMat<T>::zeros()
     {
         for (int j = 0; j < this->getCols(); j++)
         {
-            std::cout << this->get(i) << std::endl;
-            this->get(i).set(j, 0);
+            (*this)[i].set(j, 0);
         }
     }
 }
@@ -329,11 +352,12 @@ void ALMat<T>::zeros()
 template <class T>
 void ALMat<T>::ones()
 {
+    // turn all elements to 1
     for (int i = 0; i < this->getRows(); i++)
     {
         for (int j = 0; j < this->getCols(); j++)
         {
-            this->get(i).set(j, 1);
+            (*this)[i].set(j ,1);
         }
     }
 }
@@ -341,12 +365,23 @@ void ALMat<T>::ones()
 template <class T>
 void ALMat<T>::identity()
 {
+    // return error if not square matrix
+    if (this->getRows() != this->getCols())
+    {
+        return;
+    }
+    // turn all elements to 0
     for (int i = 0; i < this->getRows(); i++)
     {
         for (int j = 0; j < this->getCols(); j++)
         {
-            this->get(i).set(j, (i == j) ? 1 : 0);
+            (*this)[i].set(j, 0);
         }
+    }
+    // turn diagonal elements to 1
+    for (int i = 0; i < this->getRows(); i++)
+    {
+        (*this)[i].set(i, 1);
     }
 }
 

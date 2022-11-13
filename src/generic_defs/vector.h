@@ -328,7 +328,8 @@ void Vector<T>::pop() {
 
 template <typename T>
 void Vector<T>::set(int index, const T& value) {
-    (*this)[index] = value;
+    // set specified element to given value
+    elements[index] = value;
 }
 
 template <typename T>
