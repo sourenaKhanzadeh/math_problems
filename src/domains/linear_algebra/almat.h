@@ -40,9 +40,9 @@ public:
     // Returns the vector at the given index.
     ALVec<T>& operator[](int index);
 
-    // Operator: [][]
-    // Returns the element at the given row and column.
-    T& operator()(int row, int col);
+    // Operator: []
+    // Returns the vector at the given index.
+    const ALVec<T>& operator[](int index) const;
 
     // Operator: +
     // Adds the given matrix to this matrix and returns the result.
@@ -63,6 +63,10 @@ public:
     // Operator: /
     // Divides each element of this matrix by the given value.
     ALMat<T> operator/(const T& value);
+
+    // Operator: /
+    // Divides each element of this matrix by the given matrix.
+    ALMat<T> operator/(const ALMat<T>& m);
 
     // Operator: +=
     // Adds the given matrix to this matrix.
@@ -87,6 +91,14 @@ public:
     // Method: ones
     // creates a matrix of ones of the given size
     void ones();
+
+    // Method: random
+    // creates a matrix of random numbers of the given size
+    void random(int rows, int cols);
+
+    // Method: random
+    // creates a matrix of random numbers of the given size
+    void random();
 
     // Method: identity
     // creates an identity matrix of the given size
@@ -128,10 +140,33 @@ public:
     // returns the number of rows in the matrix
     int getRows();
 
+    // Method: getRows
+    // returns the number of rows in the matrix
+    int getRows() const;
+
     // Method: getCols
     // returns the number of cols in the matrix
     int getCols();
 
+    // Method: getCols
+    // returns the number of cols in the matrix
+    int getCols() const;
+
+    // Method: strassen
+    // returns the product of the matrix using the strassen algorithm
+    ALMat<T> strassen(const ALMat<T>& m);
+    
+    // Method: get
+    // returns the vector at the given index
+    ALVec<T> get(int index);
+
+    // Method: get
+    // returns the vector at the given index
+    ALVec<T> get(int index) const;
+
+    // Method: isPowerOf2
+    // returns true if the given number is a power of 2
+    bool isPowerOf2(int n);
 };
 
 
@@ -187,13 +222,14 @@ ALVec<T>& ALMat<T>::operator[](int index)
     return ALVec<ALVec<T> >::operator[](index);
 }
 
-// Operator: [][]
-// Returns the element at the given row and column.
+// Operator: []
+// Returns the vector at the given index.
 template <class T>
-T& ALMat<T>::operator()(int row, int col)
-{   
-    return ALVec<ALVec<T> >::operator[](row)[col];
+const ALVec<T>& ALMat<T>::operator[](int index) const
+{
+    return ALVec<ALVec<T> >::operator[](index);
 }
+
 
 // Operator: +
 // Adds the given matrix to this matrix and returns the result.
@@ -220,18 +256,24 @@ ALMat<T> ALMat<T>::operator-(const ALMat<T>& m)
 template <class T>
 ALMat<T> ALMat<T>::operator*(const ALMat<T>& m)
 {
+    // if its power of 2 use strassen
+    if (isPowerOf2(getRows()) && isPowerOf2(getCols()) && isPowerOf2(m.getRows()) && isPowerOf2(m.getCols()))
+    {
+        return strassen(m);
+    }
+    
     ALMat<T> result;
-    result.zeros(this->getRows(), m.getCols());
-    for (int i = 0; i < this->getRows(); i++)
+    result.zeros(getRows(), m.getCols());
+    for (int i = 0; i < getRows(); i++)
     {
         for (int j = 0; j < m.getCols(); j++)
         {
             T sum = 0;
-            for (int k = 0; k < this->getCols(); k++)
+            for (int k = 0; k < getCols(); k++)
             {
-                sum += this->get(i).get(k) * m.get(k).get(j);
+                sum += (*this)[i][k] * m[k][j];
             }
-            result.get(i).set(j, sum);
+            result[i][j] = sum;
         }
     }
     return result;
@@ -269,6 +311,22 @@ ALMat<T> ALMat<T>::operator/(const T& value)
     return result;
 }
 
+// Operator: /
+// Divides each element of this matrix by the given value.
+template <class T>
+ALMat<T> ALMat<T>::operator/(const ALMat<T>& m)
+{
+    ALMat<T> result(*this);
+    for (int i = 0; i < this->getRows(); i++)
+    {
+        for (int j = 0; j < this->getCols(); j++)
+        {
+            result.get(i).set(j, result.get(i).get(j) / m.get(i).get(j));
+        }
+    }
+    return result;
+}
+
 // Operator: +=
 // Adds the given matrix to this matrix.
 template <class T>
@@ -276,10 +334,7 @@ ALMat<T> ALMat<T>::operator+=(const ALMat<T>& m)
 {
     for (int i = 0; i < this->getRows(); i++)
     {
-        for (int j = 0; j < this->getCols(); j++)
-        {
-            this->get(i).set(j, this->get(i).get(j) + m.get(i).get(j));
-        }
+        (*this)[i] += m.get(i);
     }
     return *this;
 }
@@ -291,10 +346,7 @@ ALMat<T> ALMat<T>::operator-=(const ALMat<T>& m)
 {
     for (int i = 0; i < this->getRows(); i++)
     {
-        for (int j = 0; j < this->getCols(); j++)
-        {
-            this->get(i).set(j, this->get(i).get(j) - m.get(i).get(j));
-        }
+        (*this)[i] -= m.get(i);
     }
     return *this;
 }
@@ -360,6 +412,26 @@ void ALMat<T>::ones()
             (*this)[i].set(j ,1);
         }
     }
+}
+
+template <class T>
+void ALMat<T>::random()
+{
+    // turn all elements to random values 0 to 1
+    for (int i = 0; i < this->getRows(); i++)
+    {
+        for (int j = 0; j < this->getCols(); j++)
+        {
+            (*this)[i].set(j, (T)rand() / (T)RAND_MAX);
+        }
+    }
+}
+
+template <class T>
+void ALMat<T>::random(int rows, int cols)
+{
+    this->zeros(rows, cols);
+    this->random();
 }
 
 template <class T>
@@ -524,6 +596,12 @@ int ALMat<T>::getRows()
 }
 
 template <class T>
+int ALMat<T>::getRows() const
+{
+    return this->size();
+}
+
+template <class T>
 int ALMat<T>::getCols()
 {
     if (this->getRows() == 0)
@@ -531,6 +609,116 @@ int ALMat<T>::getCols()
         return 0;
     }
     return this->get(0).size();
+}
+
+template <class T>
+int ALMat<T>::getCols() const
+{
+    if (this->getRows() == 0)
+    {
+        return 0;
+    }
+    return this->get(0).size();
+}
+
+template <class T>
+ALMat<T> ALMat<T>::strassen(const ALMat<T>& other)
+{
+    ALMat<T> result;
+    result.zeros(this->getRows(), other.getCols());
+    if (this->getRows() == 1 && other.getCols() == 1)
+    {
+        result[0][0] = this->get(0).get(0) * other.get(0).get(0);
+        return result;
+    }
+    
+    ALMat<T> a11, a12, a21, a22, b11, b12, b21, b22;
+    a11.zeros(this->getRows() / 2, this->getCols() / 2);
+    a12.zeros(this->getRows() / 2, this->getCols() / 2);
+    a21.zeros(this->getRows() / 2, this->getCols() / 2);
+    a22.zeros(this->getRows() / 2, this->getCols() / 2);
+    b11.zeros(other.getRows() / 2, other.getCols() / 2);
+    b12.zeros(other.getRows() / 2, other.getCols() / 2);
+    b21.zeros(other.getRows() / 2, other.getCols() / 2);
+    b22.zeros(other.getRows() / 2, other.getCols() / 2);
+    for (int i = 0; i < this->getRows() / 2; i++)
+    {
+        for (int j = 0; j < this->getCols() / 2; j++)
+        {
+            a11[i][j] = this->get(i).get(j);
+            a12[i][j] = this->get(i).get(j + this->getCols() / 2);
+            a21[i][j] = this->get(i + this->getRows() / 2).get(j);
+            a22[i][j] = this->get(i + this->getRows() / 2).get(j + this->getCols() / 2);
+
+            b11[i][j] = other.get(i).get(j);
+            b12[i][j] = other.get(i).get(j + other.getCols() / 2);
+            b21[i][j] = other.get(i + other.getRows() / 2).get(j);
+            b22[i][j] = other.get(i + other.getRows() / 2).get(j + other.getCols() / 2);
+        }
+    }
+
+    ALMat<T> p1, p2, p3, p4, p5, p6, p7;
+
+    p1 = (a11 + a22).strassen(b11 + b22);
+
+    p2 = (a21 + a22).strassen(b11);
+
+    p3 = a11.strassen(b12 - b22);
+
+    p4 = a22.strassen(b21 - b11);
+
+    p5 = (a11 + a12).strassen(b22);
+
+    p6 = (a21 - a11).strassen(b11 + b12);
+
+    p7 = (a12 - a22).strassen(b21 + b22);
+
+    ALMat<T> c11, c12, c21, c22;
+
+    c11 = p1 + p4 - p5 + p7;
+
+    c12 = p3 + p5;
+
+    c21 = p2 + p4;
+
+    c22 = p1 - p2 + p3 + p6;
+
+    for (int i = 0; i < this->getRows() / 2; i++)
+
+    {
+
+        for (int j = 0; j < this->getCols() / 2; j++)
+
+        {
+            
+            result[i][j] = c11[i][j];
+            result[i][j + this->getCols() / 2] = c12[i][j];
+            result[i + this->getRows() / 2][j] = c21[i][j];
+            result[i + this->getRows() / 2][j + this->getCols() / 2] = c22[i][j];
+        }
+
+    }
+
+    return result;
+
+}
+
+template <class T>
+ALVec<T> ALMat<T>::get(int index)
+{
+    return (*this)[index];
+}
+
+template <class T>
+ALVec<T> ALMat<T>::get(int index) const
+{
+    return (*this)[index];
+}
+
+template <class T>
+bool ALMat<T>::isPowerOf2(int n)
+{
+    return (n & (n - 1)) == 0;
 }
 
 #endif
