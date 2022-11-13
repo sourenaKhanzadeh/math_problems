@@ -4,7 +4,7 @@ print-%: ; @echo $*=$($*)
 
 # List headers here
 HEADERS = \
-	
+	generic_defs/vector.h
 
 # Don't need object files for these. HORRIBLE HACK for now.
 ABS_H_FILES = \
@@ -27,7 +27,7 @@ OBJS_RELEASE = $(SOURCES:%.cpp=$(OBJ_LOC)/%.$(OBJ_RELEASE_SUFFIX))
 LIBS =
 
 # Excecutable names for testers
-TILE_TARGET = ../bin/tiles
+TEST_TARGET = ../bin/test
 
 EMPTY_MAP_TARGET = ../bin/empty_map
 
@@ -44,8 +44,8 @@ $(OBJS_DEBUG): $(OBJ_LOC)/%.$(OBJ_DEBUG_SUFFIX) : ../src/%.cpp ../src/%.h $(ABS_
 	@mkdir -p $(@D)
 	$(CC) $(CXXDEBUGFLAGS) -c $< -o $@
 	
-#$(TILE_TARGET): $(OBJS_DEBUG) ../src/experiments/tile_experiments.cpp
-#	$(CC) $(CXXDEBUGFLAGS) -o $(TILE_TARGET) ../src/experiments/tile_experiments.cpp $(OBJS_DEBUG) $(LIBS)
+$(TEST_TARGET): $(OBJS_DEBUG) ../src/experiments/vector_test.cpp
+	$(CC) $(CXXDEBUGFLAGS) -o $(TEST_TARGET) ../src/experiments/vector_test.cpp $(OBJS_DEBUG) $(LIBS)
 	
 #$(EMPTY_MAP_TARGET): $(OBJS_DEBUG) ../src/experiments/empty_grid_experiments.cpp
 #	$(CC) $(CXXDEBUGFLAGS) -o $(EMPTY_MAP_TARGET) ../src/experiments/empty_grid_experiments.cpp $(OBJS_DEBUG) $(LIBS)
@@ -53,7 +53,8 @@ $(OBJS_DEBUG): $(OBJ_LOC)/%.$(OBJ_DEBUG_SUFFIX) : ../src/%.cpp ../src/%.h $(ABS_
 #$(STARCRAFT_MAP_TARGET): $(OBJS_DEBUG) ../src/experiments/starcraft_map_experiments.cpp
 #	$(CC) $(CXXDEBUGFLAGS) -o $(STARCRAFT_MAP_TARGET) ../src/experiments/starcraft_map_experiments.cpp $(OBJS_DEBUG) $(LIBS)
 
-#debug: $(TILE_TARGET) $(EMPTY_MAP_TARGET) $(STARCRAFT_MAP_TARGET)
+# debug: $(TILE_TARGET) $(EMPTY_MAP_TARGET) $(STARCRAFT_MAP_TARGET)
+debug: $(TEST_TARGET)
 
 clean:
 	rm -f $(OBJS_DEBUG) $(OBJS_RELEASE) 
