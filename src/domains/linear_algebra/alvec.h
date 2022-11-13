@@ -41,6 +41,43 @@ public:
     // Divides each element of this vector by the given value.
     ALVec<T>& operator/=(const T& value); 
 
+    // Operator: *=
+    // Multiplies each element of this vector by the given value.
+    ALVec<T>& operator*=(const T& value);
+
+    // Operator: +=
+    // Adds the given vector to this vector.
+    ALVec<T>& operator+=(const ALVec<T>& v);
+
+    // Operator: -=
+    // Subtracts the given vector from this vector.
+    ALVec<T>& operator-=(const ALVec<T>& v);
+
+    // Operator: +
+    // Returns the sum of this vector and the given vector.
+    ALVec<T> operator+(const ALVec<T>& v) const;
+
+    // Operator: -
+    // Returns the difference of this vector and the given vector.
+    ALVec<T> operator-(const ALVec<T>& v) const;
+
+
+    // Operator: /
+    // Returns the element-wise division of this vector by the given vector.
+    ALVec<T> operator/(const ALVec<T>& v) const;
+
+    // Operator: *
+    // Returns the element-wise multiplication of this vector by the given vector.
+    ALVec<T> operator*(const ALVec<T>& v) const;
+
+    // Operator: /
+    // Returns the element-wise division of this vector by the given value.
+    ALVec<T> operator/(const T& value) const;
+
+    // Operator: *
+    // Returns the element-wise multiplication of this vector by the given value.
+    ALVec<T> operator*(const T& value) const;
+
     // Method: piecewiseMultiply
     // Multiplies each element of this vector by the corresponding
     // element of the given vector.
@@ -57,6 +94,10 @@ public:
     // Method: ones
     // creates a vector of ones of the given size
     void ones(int size);
+
+    // Method: ones
+    // creates a vector of ones of the given size
+    void ones();
 
     // Method: random
     // creates a vector of random numbers of the given size
@@ -134,6 +175,102 @@ ALVec<T>::ALVec(const T* array, int size) : Vector<T>(array, size)
 }
 
 template <class T>
+ALVec<T>& ALVec<T>::operator/=(const T& value)
+{
+    for (int i = 0; i < this->size(); i++)
+    {
+        (*this)[i] /= value;
+    }
+    return *this;
+}
+
+template <class T>
+ALVec<T>& ALVec<T>::operator*=(const T& value)
+{
+    for (int i = 0; i < this->size(); i++)
+    {
+        (*this)[i] *= value;
+    }
+    return *this;
+}
+
+template <class T>
+ALVec<T>& ALVec<T>::operator+=(const ALVec<T>& v)
+{
+    for (int i = 0; i < this->size(); i++)
+    {
+        (*this)[i] += v[i];
+    }
+    return *this;
+}
+
+template <class T>
+ALVec<T>& ALVec<T>::operator-=(const ALVec<T>& v)
+{
+    for (int i = 0; i < this->size(); i++)
+    {
+        (*this)[i] -= v[i];
+    }
+    return *this;
+}
+
+template <class T>
+ALVec<T> ALVec<T>::operator+(const ALVec<T>& v) const
+{
+    ALVec<T> result(*this);
+    result += v;
+    return result;
+}
+
+template <class T>
+ALVec<T> ALVec<T>::operator-(const ALVec<T>& v) const
+{
+    ALVec<T> result(*this);
+    result -= v;
+    return result;
+}
+
+template <class T>
+ALVec<T> ALVec<T>::operator/(const ALVec<T>& v) const
+{
+    ALVec<T> result(*this);
+    for (int i = 0; i < this->size(); i++)
+    {
+        result[i] /= v[i];
+    }
+    return result;
+}
+
+template <class T>
+ALVec<T> ALVec<T>::operator*(const ALVec<T>& v) const
+{
+    ALVec<T> result(*this);
+    for (int i = 0; i < this->size(); i++)
+    {
+        result[i] *= v[i];
+    }
+    return result;
+}
+
+template <class T>
+ALVec<T> ALVec<T>::operator/(const T& value) const
+{
+    ALVec<T> result(*this);
+    result /= value;
+    return result;
+}
+
+template <class T>
+ALVec<T> ALVec<T>::operator*(const T& value) const
+{
+    ALVec<T> result(*this);
+    result *= value;
+    return result;
+}
+
+
+
+template <class T>
 void ALVec<T>::piecewiseMultiply(const ALVec<T>& v)
 {
     for (int i = 0; i < this->size(); i++)
@@ -145,10 +282,10 @@ void ALVec<T>::piecewiseMultiply(const ALVec<T>& v)
 template <class T>
 void ALVec<T>::zeros(int size)
 {
-    this->clear();
-    for (int i = 0; i < size; i++)
+    this->resize(size);
+    for (int i = 0; i < this->size(); i++)
     {
-        this->add(0);
+        (*this)[i] = 0;
     }
 }
 
@@ -163,22 +300,30 @@ void ALVec<T>::zeros()
 
 template <class T>
 void ALVec<T>::ones(int size)
-{
-    this->clear();
-    for (int i = 0; i < size; i++)
+{   
+    this->resize(size);
+    for (int i = 0; i < this->size(); i++)
     {
-        this->add(1);
+        (*this)[i] = 1;
+    }
+}
+
+template <class T>
+void ALVec<T>::ones()
+{
+    for (int i = 0; i < this->size(); i++)
+    {
+        (*this)[i] = 1;
     }
 }
 
 template <class T>
 void ALVec<T>::random(int size)
 {
-    // values between 0 and 1
-    this->clear();
-    for (int i = 0; i < size; i++)
+    this->resize(size);
+    for (int i = 0; i < this->size(); i++)
     {
-        this->add((T)rand() / (T)RAND_MAX);
+        (*this)[i] = rand();
     }
 }
 
@@ -199,16 +344,6 @@ ALVec<T> ALVec<T>::unitVector()
     ALVec<T> v(*this);
     v /= v.magnitude();
     return v;
-}
-
-template <class T>
-ALVec<T>& ALVec<T>::operator/=(const T& value)
-{
-    for (int i = 0; i < this->size(); i++)
-    {
-        (*this)[i] /= value;
-    }
-    return *this;
 }
 
 

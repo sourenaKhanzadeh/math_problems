@@ -64,27 +64,6 @@ public:
     // Subtracts the given matrix from this matrix.
     ALMat<T> operator-=(const ALMat<T>& m);
 
-    // Operator <<
-    // Prints the matrix to the given output stream.
-    friend std::ostream& operator<<(std::ostream& out, const ALMat<T>& m)
-    {
-        // print as an array of arrays
-        out << "[";
-        for (int i = 0; i < m.size(); i++)
-        {
-            out << "[";
-            for (int j = 0; j < m[i].size(); j++)
-            {
-                out << m[i][j];
-                if (j < m[i].size() - 1)
-                    out << ", ";
-            }
-            out << "]";
-        }
-        out << "]";
-        return out;
-    }
-
     // Method: zeros
     // creates a matrix of zeros of the given size
     void zeros(int rows, int cols);
@@ -303,6 +282,7 @@ void ALMat<T>::zeros(int rows, int cols)
     for (int i = 0; i < rows; i++)
     {
         ALVec<T> v(cols);
+        v.zeros();
         this->add(v);
     }
 }
@@ -335,9 +315,14 @@ void ALMat<T>::identity(int size)
 template <class T>
 void ALMat<T>::zeros()
 {
+    // turn all elements to 0
     for (int i = 0; i < this->getRows(); i++)
     {
-        this->get(i).zeros();
+        for (int j = 0; j < this->getCols(); j++)
+        {
+            std::cout << this->get(i) << std::endl;
+            this->get(i).set(j, 0);
+        }
     }
 }
 
@@ -346,7 +331,10 @@ void ALMat<T>::ones()
 {
     for (int i = 0; i < this->getRows(); i++)
     {
-        this->get(i).ones();
+        for (int j = 0; j < this->getCols(); j++)
+        {
+            this->get(i).set(j, 1);
+        }
     }
 }
 
@@ -355,8 +343,10 @@ void ALMat<T>::identity()
 {
     for (int i = 0; i < this->getRows(); i++)
     {
-        this->get(i).zeros();
-        this->get(i).set(i, 1);
+        for (int j = 0; j < this->getCols(); j++)
+        {
+            this->get(i).set(j, (i == j) ? 1 : 0);
+        }
     }
 }
 

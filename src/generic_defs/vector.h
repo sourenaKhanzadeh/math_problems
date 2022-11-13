@@ -52,6 +52,10 @@ public:
     // Adds the given element to the end of this vector.
     Vector<T>& operator+=(const T& element);
 
+    // Operator: +=
+    // Adds the given vector to the end of this vector.
+    Vector<T>& operator+=(const Vector<T>& v);
+
     //Operator: -
     //Returns a new vector that is the difference of the two vectors
     Vector<T> operator-(const Vector<T>& v);
@@ -76,18 +80,10 @@ public:
 
     // Operator: <<
     // Prints the given vector to the given output stream.
-    friend std::ostream& operator<<(std::ostream& os, const Vector<T>& v)
-    {
-        os << "[";
-        for (int i = 0; i < v.count; i++) {
-            if (i > 0) os << ", ";
-            os << v.elements[i];
-        }
-        os << "]";
-        return os;
+    friend std::ostream& operator<<(std::ostream& os, const Vector<T>& v){
+        os << v.toString();
+        return os;        
     }
-
-    
 
     // Method: size
     // Returns the number of elements in this vector.
@@ -121,6 +117,10 @@ public:
     // Method: remove
     // Removes the element at the given index from this vector.
     void remove(int index);
+
+    // Method: pop
+    // Removes the last element from this vector.
+    void pop();
 
     // Method: indexOf
     // Returns the index of the first occurrence of the given value
@@ -176,6 +176,14 @@ public:
     // Returns a printable representation of this vector.
     std::string shape() const;
 
+    // Method: resize
+    // Resizes the vector to the given size.
+    void resize(int size);
+
+    // Method: getCapacity
+    // Returns the capacity of this vector.
+    int getCapacity() const;
+
 private:
     // The number of elements in this vector.
     int count;
@@ -207,304 +215,212 @@ private:
 
 };
 
+// Implementation section
 
-template <class T>
+template <typename T>
 Vector<T>::Vector() {
-    capacity = 10;
     count = 0;
+    capacity = INITIAL_CAPACITY;
     elements = new T[capacity];
 }
 
-template <class T>
+template <typename T>
 Vector<T>::Vector(int initialCapacity) {
-    capacity = initialCapacity;
     count = 0;
-    elements = new T[capacity];
-}
-
-template <class T>
-Vector<T>::Vector(int initialCapacity, const T& initialValue) {
     capacity = initialCapacity;
-    count = capacity;
     elements = new T[capacity];
-    for (int i = 0; i < capacity; i++) {
-        elements[i] = initialValue;
-    }
 }
 
-template <class T>
+template <typename T>
 Vector<T>::Vector(const Vector<T>& v) {
-    capacity = v.capacity;
-    count = v.count;
-    elements = new T[capacity];
-    for (int i = 0; i < count; i++) {
-        elements[i] = v.elements[i];
-    }
+    deepCopy(v);
 }
 
-template <class T>
+template <typename T>
 Vector<T>::~Vector() {
     delete[] elements;
 }
 
-template <class T>
+template <typename T>
 Vector<T>& Vector<T>::operator=(const Vector<T>& v) {
     if (this != &v) {
         delete[] elements;
-        capacity = v.capacity;
-        count = v.count;
-        elements = new T[capacity];
-        for (int i = 0; i < count; i++) {
-            elements[i] = v.elements[i];
-        }
+        deepCopy(v);
     }
     return *this;
 }
 
-template <class T>
-T& Vector<T>::operator[](int index) {
-    return elements[index];
-}
-
-template <class T>
-const T& Vector<T>::operator[](int index) const {
-    return elements[index];
-}
-
-template <class T>
+template <typename T>
 Vector<T>& Vector<T>::operator+=(const T& element) {
-    if (count == capacity) {
-        capacity *= 2;
-        T* newArray = new T[capacity];
-        for (int i = 0; i < count; i++) {
-            newArray[i] = elements[i];
-        }
-        delete[] elements;
-        elements = newArray;
-    }
-    elements[count] = element;
-    count++;
+    add(element);
     return *this;
 }
 
-template <class T>
-Vector<T> Vector<T>::operator+(const Vector<T>& v) const {
-    assert(count == v.count);
-    Vector<T> result = *this;
-    for (int i = 0; i < v.count; i++) {
-        result[i] += v.elements[i];
+template <typename T>
+Vector<T>& Vector<T>::operator+=(const Vector<T>& v) {
+    for (int i = 0; i < v.size(); i++) {
+        add(v[i]);
     }
-    return result;
+    return *this;
 }
 
-template <class T>
-Vector<T> Vector<T>::operator-(const Vector<T>& v) {
-    assert(count == v.count);
-    Vector<T> result = *this;
-    for (int i = 0; i < v.count; i++) {
-        result[i] -= v.elements[i];
+template <typename T>
+T& Vector<T>::operator[](int index) {
+    if (index < 0 || index >= count) {
+        error("Index out of range");
     }
-    return result;
+    return elements[index];
 }
 
-template <class T>
-T Vector<T>::operator*(const Vector<T>& v) {
-    assert(count == v.count);
-    return dotproduct(v);
-}
-
-template <class T>
-Vector<T> Vector<T>::operator*(const T v) {
-    Vector<T> result = *this;
-    for (int i = 0; i < count; i++) {
-        result[i] *= v;
+template <typename T>
+const T& Vector<T>::operator[](int index) const {
+    if (index < 0 || index >= count) {
+        error("Index out of range");
     }
-    return result;
+    return elements[index];
 }
 
-template <class T>
+template <typename T>
 bool Vector<T>::operator==(const Vector<T>& v) const {
-    if (count != v.count) return false;
+    if (count != v.count) {
+        return false;
+    }
     for (int i = 0; i < count; i++) {
-        if (elements[i] != v.elements[i]) return false;
+        if (elements[i] != v.elements[i]) {
+            return false;
+        }
     }
     return true;
 }
 
-template <class T>
+template <typename T>
 bool Vector<T>::operator!=(const Vector<T>& v) const {
     return !(*this == v);
 }
 
-template <class T>
+template <typename T>
 int Vector<T>::size() const {
     return count;
 }
 
-template <class T>
+template <typename T>
 bool Vector<T>::isEmpty() const {
     return count == 0;
 }
 
-template <class T>
-void Vector<T>::add(const T& element) {
-    *this += element;
+template <typename T>
+void Vector<T>::clear() {
+    count = 0;
 }
 
-template <class T>
-void Vector<T>::insert(int index, const T& element) {
-    if (count == capacity) {
-        capacity *= 2;
-        T* newArray = new T[capacity];
-        for (int i = 0; i < count; i++) {
-            newArray[i] = elements[i];
-        }
-        delete[] elements;
-        elements = newArray;
+template <typename T>
+T Vector<T>::get(int index) const {
+    return (*this)[index];
+}
+
+template <typename T>
+void Vector<T>::pop() {
+    if (count == 0) {
+        error("pop: vector is empty");
     }
+    count--;
+}
+
+template <typename T>
+void Vector<T>::set(int index, const T& value) {
+    (*this)[index] = value;
+}
+
+template <typename T>
+void Vector<T>::insert(int index, const T& element) {
+    if (index < 0 || index > count) {
+        error("Index out of range");
+    }
+    if (count == capacity) {
+        expandCapacity(count + 1);
+    }
+
     for (int i = count; i > index; i--) {
+        std::cout << elements[i] << ", " << elements[i-1] << std::endl;
         elements[i] = elements[i - 1];
     }
     elements[index] = element;
     count++;
 }
 
-template <class T>
+template <typename T>
+void Vector<T>::add(const T& element) {
+    insert(count, element);
+}
+
+template <typename T>
 void Vector<T>::remove(int index) {
+    if (index < 0 || index >= count) {
+        error("Index out of range");
+    }
     for (int i = index; i < count - 1; i++) {
         elements[i] = elements[i + 1];
     }
     count--;
 }
 
-template <class T>
-void Vector<T>::clear() {
-    count = 0;
-}
-
-template <class T>
-bool Vector<T>::contains(const T& element) const {
+template <typename T>
+int Vector<T>::indexOf(const T& value) const {
     for (int i = 0; i < count; i++) {
-        if (elements[i] == element) return true;
-    }
-    return false;
-}
-
-template <class T>
-int Vector<T>::indexOf(const T& element) const {
-    for (int i = 0; i < count; i++) {
-        if (elements[i] == element) return i;
+        if (elements[i] == value) {
+            return i;
+        }
     }
     return -1;
 }
 
-template <class T>
-int Vector<T>::lastIndexOf(const T& element) const {
+template <typename T>
+int Vector<T>::lastIndexOf(const T& value) const {
     for (int i = count - 1; i >= 0; i--) {
-        if (elements[i] == element) return i;
+        if (elements[i] == value) {
+            return i;
+        }
     }
     return -1;
 }
 
-template <class T>
-T Vector<T>::get(int index) const {
-    return elements[index];
+template <typename T>
+bool Vector<T>::contains(const T& value) const {
+    return indexOf(value) != -1;
 }
 
-template <class T>
-void Vector<T>::set(int index, const T& element) {
-    elements[index] = element;
-}
-
-template <class T>
+template <typename T>
 void Vector<T>::mapAll(void (*fn)(T)) const{
     for (int i = 0; i < count; i++) {
         fn(elements[i]);
     }
 }
 
-template <class T>
-T Vector<T>::reduce(T (*fn)(T, T)) const {
-    T result = elements[0];
-    for (int i = 1; i < count; i++) {
-        result = fn(result, elements[i]);
-    }
-    return result;
-}
-
-template <class T>
+template <typename T>
 Vector<T> Vector<T>::filter(bool (*fn)(T)) const {
     Vector<T> result;
     for (int i = 0; i < count; i++) {
         if (fn(elements[i])) {
-            result += elements[i];
+            result.add(elements[i]);
         }
     }
     return result;
 }
 
-
-template <class T>
-std::string Vector<T>::toString() const {
-    std::ostringstream os;
-    os << "[";
-    for (int i = 0; i < count; i++) {
-        os << elements[i];
-        if (i < count - 1) os << ", ";
-    }
-    os << "]";
-    return os.str();
-}
-
-template <class T>
-std::vector<T> Vector<T>::toStlVector() const {
-    std::vector<T> result;
-    for (int i = 0; i < count; i++) {
-        result.push_back(elements[i]);
-    }
-    return result;
-}
-
-template <class T>
-void Vector<T>::sort() {
-    sort([](T a, T b) { return a < b; });
-}
-
-template <class T>
-void Vector<T>::sort(bool (*fn)(T, T)) {
-    for (int i = 0; i < count; i++) {
-        for (int j = i + 1; j < count; j++) {
-            if (fn(elements[j], elements[i])) {
-                T temp = elements[i];
-                elements[i] = elements[j];
-                elements[j] = temp;
-            }
+template <typename T>
+void Vector<T>::expandCapacity(int minCapacity) {
+    if (capacity < minCapacity) {
+        capacity = std::max(minCapacity, capacity * GROWTH_FACTOR);
+        T* oldElements = elements;
+        elements = new T[capacity];
+        for (int i = 0; i < count; i++) {
+            elements[i] = oldElements[i];
         }
+        delete[] oldElements;
     }
 }
 
-template <class T>
-std::string Vector<T>::shape() const {
-    std::ostringstream os;
-    os << "(1, " << count << ")";
-    return os.str();
-}
-
-template <class T>
-void Vector<T>::expandCapacity(int newCapacity) {
-    if (newCapacity < count) {
-        error("Vector::expandCapacity: newCapacity must be >= count");
-    }
-    T* newArray = new T[newCapacity];
-    for (int i = 0; i < count; i++) {
-        newArray[i] = elements[i];
-    }
-    delete[] elements;
-    elements = newArray;
-    capacity = newCapacity;
-}
-
-template <class T>
+template <typename T>
 void Vector<T>::deepCopy(const Vector<T>& v) {
     count = v.count;
     capacity = v.capacity;
@@ -514,10 +430,46 @@ void Vector<T>::deepCopy(const Vector<T>& v) {
     }
 }
 
-template <class T>
+
+template <typename T>
 void Vector<T>::error(std::string msg) const {
-    throw std::runtime_error(msg);
+    throw std::out_of_range(msg);
 }
 
+template <typename T>
+void Vector<T>::resize(int newCapacity) {
+    if (newCapacity < 0) {
+        error("Illegal capacity");
+    }
+    count = newCapacity;
+    capacity = newCapacity;
+    T* oldElements = elements;
+    elements = new T[capacity];
+    for (int i = 0; i < count; i++) {
+        elements[i] = oldElements[i];
+    }
+    delete[] oldElements;
+
+}
+
+template <typename T>
+int Vector<T>::getCapacity() const {
+    return capacity;
+}
+
+template <typename T>
+std::string Vector<T>::toString() const {
+    // make a string representation of the vector
+    std::ostringstream os;
+    os << "[";
+    for (int i = 0; i < count; i++) {
+        if (i > 0) {
+            os << ", ";
+        }
+        os << elements[i];
+    }
+    os << "]";
+    return os.str();
+}
 
 #endif
