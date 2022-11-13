@@ -83,38 +83,35 @@ Vector<T>& Vector<T>::operator+=(const T& element) {
 
 template <class T>
 Vector<T> Vector<T>::operator+(const Vector<T>& v) const {
+    assert(count == v.count);
     Vector<T> result = *this;
     for (int i = 0; i < v.count; i++) {
-        result += v.elements[i];
+        result[i] += v.elements[i];
     }
     return result;
 }
 
 template <class T>
 Vector<T> Vector<T>::operator-(const Vector<T>& v) {
+    assert(count == v.count);
     Vector<T> result = *this;
     for (int i = 0; i < v.count; i++) {
-        for (int j = 0; j < result.count; j++) {
-            if (result.elements[j] == v.elements[i]) {
-                result.elements[j] = result.elements[result.count - 1];
-                result.count--;
-                break;
-            }
-        }
+        result[i] -= v.elements[i];
     }
     return result;
 }
 
 template <class T>
-Vector<T> Vector<T>::operator*(const Vector<T>& v) {
-    Vector<T> result;
-    for (int i = 0; i < v.count; i++) {
-        for (int j = 0; j < count; j++) {
-            if (elements[j] == v.elements[i]) {
-                result += elements[j];
-                break;
-            }
-        }
+T Vector<T>::operator*(const Vector<T>& v) {
+    assert(count == v.count);
+    return dotproduct(v);
+}
+
+template <class T>
+Vector<T> Vector<T>::operator*(const T v) {
+    Vector<T> result = *this;
+    for (int i = 0; i < count; i++) {
+        result[i] *= v;
     }
     return result;
 }
@@ -305,6 +302,41 @@ void Vector<T>::normalize(){
     }
 }
 
+template <class T>
+std::string Vector<T>::shape() const {
+    std::ostringstream os;
+    os << "(1, " << count << ")";
+    return os.str();
+}
+
+template <class T>
+void Vector<T>::expandCapacity(int newCapacity) {
+    if (newCapacity < count) {
+        error("Vector::expandCapacity: newCapacity must be >= count");
+    }
+    T* newArray = new T[newCapacity];
+    for (int i = 0; i < count; i++) {
+        newArray[i] = elements[i];
+    }
+    delete[] elements;
+    elements = newArray;
+    capacity = newCapacity;
+}
+
+template <class T>
+void Vector<T>::deepCopy(const Vector<T>& v) {
+    count = v.count;
+    capacity = v.capacity;
+    elements = new T[capacity];
+    for (int i = 0; i < count; i++) {
+        elements[i] = v.elements[i];
+    }
+}
+
+template <class T>
+void Vector<T>::error(std::string msg) const {
+    throw std::runtime_error(msg);
+}
 
 //explicit instantiations   
 template class Vector<int>;

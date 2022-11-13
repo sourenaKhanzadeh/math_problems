@@ -58,7 +58,8 @@ public:
 
     // Operator: *
     // Returns a new vector that is the product of the two vectors
-    Vector<T> operator*(const Vector<T>& v);
+    Vector<T> operator*(const T v);
+    T operator*(const Vector<T>& v);
 
     // Operator: +
     // Returns a new vector that is the concatenation of this vector
@@ -183,6 +184,9 @@ public:
     // vector for which the given predicate function returns true.
     Vector<T> filter(bool (*fn)(T)) const;
     
+    // Method: shape
+    // Returns a printable representation of this vector.
+    std::string shape() const;
 
 private:
     // The number of elements in this vector.
@@ -208,6 +212,11 @@ private:
     // Method: deepCopy
     // Copies the given vector into this vector.
     void deepCopy(const Vector<T>& v);
+
+    // Method: error
+    // Throws an error with the given message.
+    void error(std::string msg) const;
+
 };
 
 

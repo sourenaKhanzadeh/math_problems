@@ -2,24 +2,21 @@
 
 int main(){
     Vector<int> v1;
-    Vector<int> v2(10);
-    Vector<int> v3(10, 5);
-    Vector<int> v4(v3);
-    Vector<int> v5;
-    v5 = v4;
-    Vector<int> v6;
-    v6 += 5;
-    Vector<int> v7;
-    v7 = v6 - v5;
-    Vector<int> v8;
-    v8 = v6 * v5;
+
+    v1 += 1;
+    v1 += 2;
+    v1 += 3;
+
+    Vector<int> v2 = v1;
+    Vector<int> v3 = v1 + v2;
+    int dot = v3 * v1;
+    Vector<int> v4 = v3 * 2;
+
     std::cout << v1 << std::endl;
     std::cout << v2 << std::endl;
     std::cout << v3 << std::endl;
     std::cout << v4 << std::endl;
-    std::cout << v5 << std::endl;
-    std::cout << v6 << std::endl;
-    std::cout << v7 << std::endl;
-    std::cout << v8 << std::endl;
+    std::cout << dot << std::endl;
+    std::cout << v4.shape() << std::endl; 
     return 0;
 }
