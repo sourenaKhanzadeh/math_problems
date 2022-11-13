@@ -184,6 +184,10 @@ public:
     // Returns the capacity of this vector.
     int getCapacity() const;
 
+    // Method: swap
+    // Swaps the elements at the given indices.
+    void swap(int i, int j);
+
 private:
     // The number of elements in this vector.
     int count;
@@ -472,5 +476,15 @@ std::string Vector<T>::toString() const {
     os << "]";
     return os.str();
 }
+
+
+template <typename T>
+void Vector<T>::swap(int i, int j) {
+    T temp = elements[i];
+    elements[i] = elements[j];
+    elements[j] = temp;
+
+}
+
 
 #endif

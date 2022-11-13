@@ -4,23 +4,30 @@ int main(){
     ALMat<float> m;
     ALMat<float> m2;
     
-    m.random(8, 8);
-    m2.ones(8, 8);
-    // m3.identity();
-    // v.ones(4);
+    m.zeros(3,3);
+    
+    m[0][0] = 3;
+    m[0][1] = 1;
+    m[0][2] = -1;
+
+    m[1][0] = 2;
+    m[1][1] = -2;
+    m[1][2] = 1;
+
+    m[2][0] = 1;
+    m[2][1] = 1;
+    m[2][2] = 1;
+
+    ALVec<float> v;
+    v.zeros(3);
+    v[0] = 9;
+    v[1] = -3;
+    v[2] = 7;
 
     std::cout << m << std::endl;
-    m.transpose();
+    std::cout << v << std::endl;
 
-    std::cout << m << std::endl;
-
-    std::cout << m.inverse() << std::endl;
-    // std::cout << m2 << std::endl;
-    // std::cout << m + m2 << std::endl;
-    // std::cout << m - m2 << std::endl;
-    std::cout << m.determinant() << std::endl;
-    // std::cout << m / m2 << std::endl;
-    // std::cout << v[2] << std::endl;
+    std::cout << m.solve(v) << std::endl;
 
     return 0;
 }

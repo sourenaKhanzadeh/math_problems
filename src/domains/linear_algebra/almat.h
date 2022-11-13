@@ -57,6 +57,10 @@ public:
     ALMat<T> operator*(const ALMat<T>& m);
 
     // Operator: *
+    // Multiplies the given vector by this matrix and returns the result.
+    ALVec<T> operator*(const ALVec<T>& v);
+
+    // Operator: *
     // Multiplies each element of this matrix by the given value.
     ALMat<T> operator*(const T& value);
 
@@ -171,6 +175,15 @@ public:
     // Method: isPowerOf2
     // returns true if the given number is a power of 2
     bool isPowerOf2(int n);
+
+    // Method: solve
+    // solves the system of equations Ax = b
+    ALVec<T> solve(const ALVec<T> &b);
+
+    // Method: swapRows
+    // swaps the given rows
+    void swapRows(int row1, int row2);
+
 };
 
 
@@ -295,6 +308,25 @@ ALMat<T> ALMat<T>::operator*(const T& value)
         {
             result.get(i).set(j, result.get(i).get(j) * value);
         }
+    }
+    return result;
+}
+
+// Operator: *
+// Multiplies each element of this matrix by the given value.
+template <class T>
+ALVec<T> ALMat<T>::operator*(const ALVec<T>& value) 
+{
+    ALVec<T> result;
+    result.zeros(getRows());
+    for (int i = 0; i < getRows(); i++)
+    {
+        T sum = 0;
+        for (int j = 0; j < getCols(); j++)
+        {
+            sum += (*this)[i][j] * value[j];
+        }
+        result[i] = sum;
     }
     return result;
 }
@@ -788,6 +820,78 @@ template <class T>
 bool ALMat<T>::isPowerOf2(int n)
 {
     return (n & (n - 1)) == 0;
+}
+
+template <class T>
+ALVec<T> ALMat<T>::solve(const ALVec<T>& other)
+{
+    // nxm matrix and nx1 vector
+    
+    // check if matrix is square
+    if (this->getRows() != this->getCols())
+    {
+        throw std::invalid_argument("Matrix must be square");
+    }
+
+    // check if vector is correct size
+    if (this->getRows() != other.size())
+    {
+        throw std::invalid_argument("Vector must be same size as matrix");
+    }
+
+    // check if matrix is invertible
+    if (this->determinant() == 0)
+    {
+        throw std::invalid_argument("Matrix must be invertible");
+    }
+
+    // create augmented matrix
+    ALMat<T> aug;
+    aug.zeros(this->getRows(), this->getCols() + 1);
+    for (int i = 0; i < this->getRows(); i++)
+    {
+        for (int j = 0; j < this->getCols(); j++)
+        {
+            aug[i][j] = this->get(i).get(j);
+        }
+        aug[i][this->getCols()] = other.get(i);
+    }
+
+    // perform gaussian elimination
+    for (int i = 0; i < aug.getRows(); i++)
+    {
+        for (int j = i + 1; j < aug.getRows(); j++)
+        {
+            T factor = aug[j][i] / aug[i][i];
+            for (int k = i; k < aug.getCols(); k++)
+            {
+                aug[j][k] -= factor * aug[i][k];
+            }
+        }
+    }
+
+    // perform back substitution
+    ALVec<T> result;
+    result.zeros(this->getRows());
+    for (int i = aug.getRows() - 1; i >= 0; i--)
+    {
+        T sum = 0;
+        for (int j = i + 1; j < aug.getCols() - 1; j++)
+        {
+            sum += aug[i][j] * result.get(j);
+        }
+        result[i] = (aug[i][aug.getCols() - 1] - sum) / aug[i][i];
+    }
+
+    return result;
+}
+
+template <class T>
+void ALMat<T>::swapRows(int i, int j)
+{
+    ALVec<T> temp = (*this)[i];
+    (*this)[i] = (*this)[j];
+    (*this)[j] = temp;
 }
 
 #endif
