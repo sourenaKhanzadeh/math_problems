@@ -68,6 +68,10 @@ public:
     // Divides each element of this matrix by the given matrix.
     ALMat<T> operator/(const ALMat<T>& m);
 
+    //Operator /=
+    //Divides each element of this matrix by the given value.
+    ALMat<T>& operator/=(const T& value);
+
     // Operator: +=
     // Adds the given matrix to this matrix.
     ALMat<T> operator+=(const ALMat<T>& m);
@@ -110,7 +114,7 @@ public:
 
     // Method: transpose
     // returns the transpose of the matrix
-    ALMat<T> transpose();
+    void transpose();
 
     // Method: determinant
     // returns the determinant of the matrix
@@ -327,6 +331,21 @@ ALMat<T> ALMat<T>::operator/(const ALMat<T>& m)
     return result;
 }
 
+// Operator: /=
+// Divides each element of this matrix by the given value.
+template <class T>
+ALMat<T>& ALMat<T>::operator/=(const T& value)
+{
+    for (int i = 0; i < this->getRows(); i++)
+    {
+        for (int j = 0; j < this->getCols(); j++)
+        {
+            (*this)[i][j] /= value;
+        }
+    }
+    return *this;
+}
+
 // Operator: +=
 // Adds the given matrix to this matrix.
 template <class T>
@@ -458,7 +477,7 @@ void ALMat<T>::identity()
 }
 
 template <class T>
-ALMat<T> ALMat<T>::transpose()
+void ALMat<T>::transpose()
 {
     ALMat<T> result;
     result.zeros(this->getCols(), this->getRows());
@@ -466,7 +485,7 @@ ALMat<T> ALMat<T>::transpose()
     {
         for (int j = 0; j < this->getCols(); j++)
         {
-            result.get(j).set(i, this->get(i).get(j));
+            result[j][i] = (*this)[i][j];
         }
     }
     *this = result;
@@ -475,86 +494,136 @@ ALMat<T> ALMat<T>::transpose()
 template <class T>
 T ALMat<T>::determinant()
 {
+    // return error if not square matrix
     if (this->getRows() != this->getCols())
     {
         return 0;
     }
+    // return 1 if 1x1 matrix
     if (this->getRows() == 1)
     {
-        return this->get(0).get(0);
+        return (*this)[0][0];
     }
+    // return 0 if 2x2 matrix
     if (this->getRows() == 2)
     {
-        return this->get(0).get(0) * this->get(1).get(1) - this->get(0).get(1) * this->get(1).get(0);
+        return (*this)[0][0] * (*this)[1][1] - (*this)[0][1] * (*this)[1][0];
     }
-    T result = 0;
-    for (int i = 0; i < this->getCols(); i++)
+    // return determinant of 3x3 matrix
+    if (this->getRows() == 3)
     {
-        ALMat<T> sub;
-        sub.zeros(this->getRows() - 1, this->getCols() - 1);
+        return (*this)[0][0] * ((*this)[1][1] * (*this)[2][2] - (*this)[1][2] * (*this)[2][1]) -
+               (*this)[0][1] * ((*this)[1][0] * (*this)[2][2] - (*this)[1][2] * (*this)[2][0]) +
+               (*this)[0][2] * ((*this)[1][0] * (*this)[2][1] - (*this)[1][1] * (*this)[2][0]);
+    }
+    // return determinant of nxn matrix
+    T result = 0;
+    for (int i = 0; i < this->getRows(); i++)
+    {
+        ALMat<T> submatrix;
+        submatrix.zeros(this->getRows() - 1, this->getCols() - 1);
         for (int j = 1; j < this->getRows(); j++)
         {
             for (int k = 0; k < this->getCols(); k++)
             {
                 if (k < i)
                 {
-                    sub.get(j - 1).set(k, this->get(j).get(k));
+                    submatrix[j-1][k] = (*this)[j][k];
                 }
                 else if (k > i)
                 {
-                    sub.get(j - 1).set(k - 1, this->get(j).get(k));
+                    submatrix[j-1][k-1] = (*this)[j][k];
                 }
             }
         }
-        result += this->get(0).get(i) * sub.determinant() * (i % 2 == 0 ? 1 : -1);
+        result += pow(-1, i) * (*this)[0][i] * submatrix.determinant();
     }
     return result;
+
 }
 
 template <class T>
 ALMat<T> ALMat<T>::inverse()
 {
-    ALMat<T> result;
-    result.zeros(this->getRows(), this->getCols());
-    T det = this->determinant();
-    if (det == 0)
+    // return error if not square matrix
+    if (this->getRows() != this->getCols())
     {
+        return *this;
+    }
+    // return inverse of 1x1 matrix
+    if (this->getRows() == 1)
+    {
+        ALMat<T> result;
+        result.zeros(1, 1);
+        result[0][0] = 1 / (*this)[0][0];
         return result;
     }
+    // return inverse of 2x2 matrix
+    if (this->getRows() == 2)
+    {
+        ALMat<T> result;
+        result.zeros(2, 2);
+        result[0][0] = (*this)[1][1];
+        result[0][1] = -(*this)[0][1];
+        result[1][0] = -(*this)[1][0];
+        result[1][1] = (*this)[0][0];
+        result /= this->determinant();
+        return result;
+    }
+    // return inverse of 3x3 matrix
+    if (this->getRows() == 3)
+    {
+        ALMat<T> result;
+        result.zeros(3, 3);
+        result[0][0] = (*this)[1][1] * (*this)[2][2] - (*this)[1][2] * (*this)[2][1];
+        result[0][1] = -((*this)[1][0] * (*this)[2][2] - (*this)[1][2] * (*this)[2][0]);
+        result[0][2] = (*this)[1][0] * (*this)[2][1] - (*this)[1][1] * (*this)[2][0];
+        result[1][0] = -((*this)[0][1] * (*this)[2][2] - (*this)[0][2] * (*this)[2][1]);
+        result[1][1] = (*this)[0][0] * (*this)[2][2] - (*this)[0][2] * (*this)[2][0];
+        result[1][2] = -((*this)[0][0] * (*this)[2][1] - (*this)[0][1] * (*this)[2][0]);
+        result[2][0 ] = (*this)[0][1] * (*this)[1][2] - (*this)[0][2] * (*this)[1][1];
+        result[2][1] = -((*this)[0][0] * (*this)[1][2] - (*this)[0][2] * (*this)[1][0]);
+        result[2][2] = (*this)[0][0] * (*this)[1][1] - (*this)[0][1] * (*this)[1][0];
+        result /= this->determinant();
+        return result;
+    }
+    // return inverse of nxn matrix
+    ALMat<T> result;
+    result.zeros(this->getRows(), this->getCols());
     for (int i = 0; i < this->getRows(); i++)
     {
         for (int j = 0; j < this->getCols(); j++)
         {
-            ALMat<T> sub;
-            sub.zeros(this->getRows() - 1, this->getCols() - 1);
+            ALMat<T> submatrix;
+            submatrix.zeros(this->getRows() - 1, this->getCols() - 1);
             for (int k = 0; k < this->getRows(); k++)
             {
                 for (int l = 0; l < this->getCols(); l++)
                 {
                     if (k < i && l < j)
                     {
-                        sub.get(k).set(l, this->get(k).get(l));
+                        submatrix[k][l] = (*this)[k][l];
                     }
                     else if (k < i && l > j)
                     {
-                        sub.get(k).set(l - 1, this->get(k).get(l));
+                        submatrix[k][l-1] = (*this)[k][l];
                     }
                     else if (k > i && l < j)
                     {
-                        sub.get(k - 1).set(l, this->get(k).get(l));
+                        submatrix[k-1][l] = (*this)[k][l];
                     }
                     else if (k > i && l > j)
                     {
-                        sub.get(k - 1).set(l - 1, this->get(k).get(l));
+                        submatrix[k-1][l-1] = (*this)[k][l];
                     }
                 }
             }
-            result.get(i).set(j, sub.determinant() * ((i + j) % 2 == 0 ? 1 : -1));
+            result[j][i] = pow(-1, i + j) * submatrix.determinant();
         }
     }
-    result.transpose();
-    result /= det;
+    result /= this->determinant();
     return result;
+
 }
 
 template <class T>
