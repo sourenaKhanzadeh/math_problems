@@ -1,28 +1,23 @@
 #include "../domains/linear_algebra/alvec.h"
+#include "../domains/linear_algebra/almat.h"
 
 int main(){
-    ALVec<float> v1;
-    ALVec<float> v2;
-    v1.ones(3);
-    v2 += 10;
-    v2 += 3;
-    v2 += 5;
+    ALMat<float> m;
 
-    std::cout << v1 << std::endl;
-    std::cout << v2 << std::endl;
-    std::cout << v1.magnitude() << std::endl;
-    std::cout << v2.unitVector() << std::endl;
-    std::cout << v1.distance(v2) << std::endl;
-    std::cout << v1.dotproduct(v2) << std::endl;
-    std::cout << v1.angle(v2) << std::endl;
+    m.zeros(3,3);
 
-    assert(v1.size() == 3);
-    assert(v2.size() == 3);
-    assert(v1[0] == 1);
-    assert(v1[1] == 1);
-    assert(v1[2] == 1);
-    assert(v2[0] == 10);
-    assert(v2[1] == 3);
-    assert(v2[2] == 5);
+    m[0][0] = 1;
+    m[0][1] = 2;
+    m[0][2] = 3;
+    m[1][0] = 4;
+    m[1][1] = 5;
+    m[1][2] = 6;
+    m[2][0] = 7;
+    m[2][1] = 8;
+    m[2][2] = 9;
+
+
+    std::cout << m << std::endl;
+
     return 0;
 }

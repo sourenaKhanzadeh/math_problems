@@ -5,7 +5,8 @@ print-%: ; @echo $*=$($*)
 # List headers here
 HEADERS = \
 	domains/linear_algebra/alvec.h \
-	generic_defs/vector.h
+	domains/linear_algebra/almat.h\
+	generic_defs/vector.h\
 
 
 # Don't need object files for these. HORRIBLE HACK for now.
