@@ -283,6 +283,8 @@ void Vector<T>::sort(bool (*fn)(T, T)) {
 
 template <class T>
 T Vector<T>::dotproduct(const Vector<T>& v) const {
+    // check if the type is numeric
+    static_assert(std::is_arithmetic<T>::value, "Vector::dotproduct: type must be numeric");
     T result = 0;
     for (int i = 0; i < count; i++) {
         result += elements[i] * v.elements[i];
@@ -303,3 +305,8 @@ void Vector<T>::normalize(){
     }
 }
 
+
+//explicit instantiations   
+template class Vector<int>;
+template class Vector<double>;
+template class Vector<float>;

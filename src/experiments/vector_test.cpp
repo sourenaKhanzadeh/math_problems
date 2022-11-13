@@ -18,5 +18,8 @@ int main(){
     std::cout << v3 << std::endl;
     std::cout << v4 << std::endl;
     std::cout << v5 << std::endl;
+    std::cout << v6 << std::endl;
+    std::cout << v7 << std::endl;
+    std::cout << v8 << std::endl;
     return 0;
 }

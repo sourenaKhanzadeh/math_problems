@@ -57,5 +57,5 @@ $(TEST_TARGET): $(OBJS_DEBUG) ../src/experiments/vector_test.cpp
 debug: $(TEST_TARGET)
 
 clean:
-	rm -f $(OBJS_DEBUG) $(OBJS_RELEASE) 
+	rm -f $(OBJS_DEBUG) $(OBJS_RELEASE) $(TEST_TARGET)
 # $(TILE_TARGET) $(EMPTY_MAP_TARGET) $(STARCRAFT_MAP_TARGET)
