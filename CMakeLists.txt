@@ -11,10 +11,16 @@ add_library(
     math_library src/generic_defs/vector.cpp 
     src/domains/linear_algebra/almat.cpp 
     src/domains/linear_algebra/alvec.cpp
+    src/utils/graphics.cpp
 )
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/external/SDL/include
+)
+
 target_include_directories(${PROJECT_NAME} 
-PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/SDL/include
+PUBLIC ${CMAKE_SOURCE_DIR}/include
+PUBLIC ${CMAKE_SOURCE_DIR}/external/SDL/include
 )
 
 target_link_libraries(${PROJECT_NAME} math_library SDL2)
