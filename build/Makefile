@@ -27,7 +27,14 @@ OBJ_RELEASE_SUFFIX = release.o
 OBJS_RELEASE = $(SOURCES:%.cpp=$(OBJ_LOC)/%.$(OBJ_RELEASE_SUFFIX)) 
 
 # Libraries
-LIBS =
+LIBS = 
+# -F /Library/Frameworks -framework SDL2 -framework SDL2_image -framework SDL2_ttf
+
+#include
+# INCLUDE = -I/Library/Frameworks/SDL2.framework/Headers \
+	-I/Library/Frameworks/SDL2_image.framework/Headers \
+	-I/Library/Frameworks/SDL2_ttf.framework/Headers \
+	# -I/Library/Frameworks/SDL2_mixer.framework/Headers
 
 # Excecutable names for testers
 TEST_TARGET = ../bin/test
@@ -40,7 +47,7 @@ STARCRAFT_MAP_TARGET = ../bin/starcraft_map
 CC = g++
 CXXFLAGS = -Wall -pedantic -ansi -Werror -Wno-unused-function -std=c++11
 CXXRELEASEFLAGS = -O3 $(CXXFLAGS)
-CXXDEBUGFLAGS = -g $(CXXFLAGS)
+CXXDEBUGFLAGS = -g $(CXXFLAGS) 
 
 # Builds object files
 $(OBJS_DEBUG): $(OBJ_LOC)/%.$(OBJ_DEBUG_SUFFIX) : ../src/%.cpp ../src/%.h $(ABS_H_FILES)

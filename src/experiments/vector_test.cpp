@@ -1,33 +1,22 @@
 #include "../domains/linear_algebra/almat.h"
 
 int main(){
-    ALMat<float> m;
-    ALMat<float> m2;
+    ALMat<float> A;
+    A.zeros(3,3);
     
-    m.zeros(3,3);
+    A[0][0] = 1;
+    A[0][1] = 2;
+    A[0][2] = 3;
+    A[1][0] = 4;
+    A[1][1] = 5;
+    A[1][2] = 6;
+    A[2][0] = 7;
+    A[2][1] = 8;
+    A[2][2] = 9;
     
-    m[0][0] = 3;
-    m[0][1] = 1;
-    m[0][2] = -1;
 
-    m[1][0] = 2;
-    m[1][1] = -2;
-    m[1][2] = 1;
-
-    m[2][0] = 1;
-    m[2][1] = 1;
-    m[2][2] = 1;
-
-    ALVec<float> v;
-    v.zeros(3);
-    v[0] = 9;
-    v[1] = -3;
-    v[2] = 7;
-
-    std::cout << m << std::endl;
-    std::cout << v << std::endl;
-
-    std::cout << m.solve(v) << std::endl;
+    std::cout << A << std::endl;
+    
 
     return 0;
 }
