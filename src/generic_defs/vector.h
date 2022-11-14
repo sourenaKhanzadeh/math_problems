@@ -236,6 +236,16 @@ Vector<T>::Vector(int initialCapacity) {
 }
 
 template <typename T>
+Vector<T>::Vector(int n, const T & value) {
+    count = n;
+    capacity = n;
+    elements = new T[capacity];
+    for (int i = 0; i < n; i++) {
+        elements[i] = value;
+    }
+}
+
+template <typename T>
 Vector<T>::Vector(const Vector<T>& v) {
     deepCopy(v);
 }

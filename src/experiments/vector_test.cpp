@@ -1,9 +1,8 @@
 #include "../domains/linear_algebra/almat.h"
 
 int main(){
-    ALMat<float> A;
-    A.zeros(3,3);
-    
+    ALMat<float> A(3, 3, 1.0);
+    std::cout << A << std::endl;
     A[0][0] = 1;
     A[0][1] = 2;
     A[0][2] = 3;

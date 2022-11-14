@@ -18,10 +18,10 @@ public:
     // Creates a new matrix with the given initial capacity.
     ALMat(int initialCapacity);
 
+
     // Constructor: ALMat
-    // Creates a new matrix with the given initial capacity and
-    // initial value.
-    ALMat(int initialCapacity, const ALVec<T>& initialValue);
+    // Creates a new matrix given the number of rows and columns.
+    ALMat(int rows, int columns, T val);
 
     // Constructor: ALMat
     // Creates a new matrix that is a copy of the given matrix.
@@ -201,13 +201,6 @@ ALMat<T>::ALMat(int initialCapacity) : ALVec<ALVec<T> >(initialCapacity)
 {
 }
 
-// Constructor: ALMat
-// Creates a new matrix with the given initial capacity and
-// initial value.
-template <class T>
-ALMat<T>::ALMat(int initialCapacity, const ALVec<T>& initialValue) : ALVec<ALVec<T> >(initialCapacity, initialValue)
-{
-}
 
 // Constructor: ALMat
 // Creates a new matrix that is a copy of the given matrix.
@@ -222,6 +215,18 @@ ALMat<T>::ALMat(const ALMat<T>& m) : ALVec<ALVec<T> >(m)
 template <class T>
 ALMat<T>::ALMat(const ALVec<T>* array, int size) : ALVec<ALVec<T> >(array, size)
 {
+}
+
+// Constructor: ALMat
+// Creates a new matrix given the number of rows and columns.
+template <class T>
+ALMat<T>::ALMat(int rows, int cols, T val) : ALVec<ALVec<T> >(rows, val)
+{
+    for (int i = 0; i < rows; i++)
+    {
+        ALVec<T> v(cols, val);
+        ALVec<ALVec<T> >::set(i, v);
+    }
 }
 
 // Destructor: ~ALMat
