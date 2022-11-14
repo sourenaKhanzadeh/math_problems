@@ -4,10 +4,17 @@ project(math_problems
     DESCRIPTION "Math problems"
     LANGUAGES CXX
 )
+add_subdirectory(external/SDL)
+
 add_executable(${PROJECT_NAME} src/experiments/vector_test.cpp)
 add_library(
     math_library src/generic_defs/vector.cpp 
     src/domains/linear_algebra/almat.cpp 
-    src/domains/linear_algebra/alvec.cpp)
+    src/domains/linear_algebra/alvec.cpp
+)
+target_include_directories(${PROJECT_NAME} 
+PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/SDL/include
+)
 
-target_include_directories(math_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME} math_library SDL2)
