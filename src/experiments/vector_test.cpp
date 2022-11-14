@@ -1,4 +1,4 @@
-#include "../domains/linear_algebra/almat.h"
+#include "../../include/almat.h"
 
 int main(){
     ALMat<float> A(3, 3, 1.0);

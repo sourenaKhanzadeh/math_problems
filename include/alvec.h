@@ -1,7 +1,7 @@
 #ifndef ALVEC_H
 #define ALVEC_H
 
-#include "../../generic_defs/vector.h"
+#include "vector.h"
 
 
 // Class: ALVec
