@@ -1,2 +1,0 @@
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libmath_library.a CMakeFiles/math_library.dir/src/generic_defs/vector.cpp.o CMakeFiles/math_library.dir/src/domains/linear_algebra/almat.cpp.o CMakeFiles/math_library.dir/src/domains/linear_algebra/alvec.cpp.o
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libmath_library.a

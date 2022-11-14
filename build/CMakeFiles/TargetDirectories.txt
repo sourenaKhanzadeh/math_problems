@@ -1,4 +1,0 @@
-/Users/sourenakhanzadeh/programming/c++/math_problems/build/CMakeFiles/math_problems.dir
-/Users/sourenakhanzadeh/programming/c++/math_problems/build/CMakeFiles/math_library.dir
-/Users/sourenakhanzadeh/programming/c++/math_problems/build/CMakeFiles/edit_cache.dir
-/Users/sourenakhanzadeh/programming/c++/math_problems/build/CMakeFiles/rebuild_cache.dir
