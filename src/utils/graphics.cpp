@@ -1,15 +1,21 @@
 #include <graphics.h>
 
 namespace gp{
+    SDL_Renderer* Window::renderer = nullptr;
+    Vector<Line*> Window::lines;
+    int Window::width = 0;
+    int Window::height = 0;
     Window::Window(const char* title, int width, int height){
         SDL_Init(SDL_INIT_VIDEO);
         window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        Window::renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         running = true;
         graph = new Graph(window, renderer);
+        Window::width = width;
+        Window::height = height;
     }
     Window::~Window(){
-        SDL_DestroyRenderer(renderer);
+        SDL_DestroyRenderer(Window::renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
     }
@@ -21,18 +27,24 @@ namespace gp{
             }
         }
 
+        for(int i = 0; i < lines.size(); i++){
+            lines[i]->update();
+        }
         graph->update();
     }
     void Window::clear(){
-        SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 255);
-        SDL_RenderClear(renderer);
+        SDL_SetRenderDrawColor(Window::renderer, 0xff, 0xff, 0xff, 255);
+        SDL_RenderClear(Window::renderer);
     }
     void Window::draw(){
 
         graph->draw();
+        for(int i = 0; i < lines.size(); i++){
+            lines[i]->draw();
+        }
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderPresent(renderer);
+        SDL_SetRenderDrawColor(Window::renderer, 255, 255, 255, 255);
+        SDL_RenderPresent(Window::renderer);
     }
     void Window::close(){
         running = false;
@@ -76,11 +88,11 @@ namespace gp{
         SDL_RenderDrawLine(renderer, width/2, 0, width/2, height);
 
         // draw the x ticks
-        for(int i = 0; i < width; i += 10){
+        for(int i = 0; i < width; i += 100){
             SDL_RenderDrawLine(renderer, i, height/2 - 5, i, height/2 + 5);
         }
         // draw the y ticks
-        for(int i = 0; i < height; i += 10){
+        for(int i = 0; i < height; i += 100){
             SDL_RenderDrawLine(renderer, width/2 - 5, i, width/2 + 5, i);
         }
 
@@ -118,5 +130,85 @@ namespace gp{
     }
     void Graph::update(){
 
+    }
+}
+
+namespace gp{
+    Color::Color(int r, int g, int b, int a){
+        this->r = r;
+        this->g = g;
+        this->b = b;
+        this->a = a;
+    }
+    Color::~Color(){
+
+    }
+}
+namespace gp{
+    Line::Line(SDL_Renderer *renderer ,int x1, int y1, int x2, int y2){
+        this->x1 = x1;
+        this->y1 = y1;
+        this->x2 = x2;
+        this->y2 = y2;
+        this->color = new Color(0, 0, 0, 255);
+        this->renderer = renderer;
+    }
+
+    Line::Line(SDL_Renderer *renderer ,int x1, int y1, int x2, int y2, Color *color){
+        this->x1 = x1;
+        this->y1 = y1;
+        this->x2 = x2;
+        this->y2 = y2;
+        this->color = color;
+        this->renderer = renderer;
+    }
+
+    Line::~Line(){
+        
+    }
+
+    void Line::draw(){
+        SDL_SetRenderDrawColor(renderer, color->getR(), color->getG(), color->getB(), color->getA());
+        SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+    }
+    
+    void Line::update(){
+
+    }
+}
+
+namespace gp{
+    void addLine(int m, int b){
+        // plot the line y = mx + b on the ticks
+
+        // get the x and y coordinates of the line
+        int x1 = 0;
+        int y1 = m * x1 + b;
+        int x2 = Window::width;
+        int y2 = m * x2 + b;
+        
+        // flip it vertically
+        y1 = Window::height - y1;
+        y2 = Window::height - y2;
+
+        // add the line to the lines vector
+        Window::lines.add(new Line(Window::renderer, x1, y1, x2, y2));
+    }
+
+    void addLine(int m, int b, Color *color){
+        // plot the line y = mx + b on the ticks
+
+        // get the x and y coordinates of the line
+        int x1 = 0;
+        int y1 = m * x1 + b;
+        int x2 = Window::width;
+        int y2 = m * x2 + b;
+        
+        // flip it vertically
+        y1 = Window::height - y1;
+        y2 = Window::height - y2;
+
+        // add the line to the lines vector
+        Window::lines.add(new Line(Window::renderer, x1, y1, x2, y2, color));
     }
 }
