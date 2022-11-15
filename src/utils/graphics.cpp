@@ -48,9 +48,18 @@ namespace gp{
         SDL_GetWindowSize(window, &w, &h);
         this->width = w;
         this->height = h;
+        // init font
+        TTF_Init();
+        font = TTF_OpenFont("../res/fonts/arial/arial.ttf", 10);
+        if(font == NULL){
+            std::cout << "Failed to load font " << TTF_GetError() << std::endl;
+        }
+
     }
     
     Graph::~Graph(){
+        TTF_CloseFont(font);
+
     }
     void Graph::draw(){
         // draw the cartesian plane
@@ -70,7 +79,42 @@ namespace gp{
         for(int i = 0; i < width; i += 10){
             SDL_RenderDrawLine(renderer, i, height/2 - 5, i, height/2 + 5);
         }
+        // draw the y ticks
+        for(int i = 0; i < height; i += 10){
+            SDL_RenderDrawLine(renderer, width/2 - 5, i, width/2 + 5, i);
+        }
 
+        // draw the x text
+        displayText("x", width - 20, height/2 + 20);
+        // draw the y text
+        displayText("y", width/2 + 20, 20);
+
+        // draw the x tick labels
+        for(int i = 0; i < width; i += 50){
+            displayText(std::to_string(i - width/2).c_str(), i, height/2 + 20);
+        }
+        // draw the y tick labels
+        for(int i = 0; i < height; i += 50){
+            displayText(std::to_string(height/2 - i).c_str(), width/2 + 20, i);
+        }
+
+
+
+
+    }
+    void Graph::displayText(const char* text, int x, int y){
+        SDL_Color color = {0, 0, 0, 255};
+        surface = TTF_RenderText_Solid(font, text, color);
+        texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Rect rect;
+        rect.x = x;
+        rect.y = y;
+        rect.w = 20;
+        rect.h = 20;
+        SDL_RenderCopy(renderer, texture, NULL, &rect);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+        
     }
     void Graph::update(){
 

@@ -2,7 +2,9 @@
 #define GRAPHICS_H
 
 #include <SDL.h>
-#include <vector>
+#include <SDL_ttf.h>
+#include <string>
+#include <iostream>
 
 namespace gp{
     class GameObject{
@@ -19,10 +21,15 @@ namespace gp{
         ~Graph();
         void draw();
         void update();
+        void displayText(const char* text, int x, int y);
     private:
         SDL_Window* window;
         int width, height;
         SDL_Renderer* renderer;
+        // font
+        TTF_Font* font;
+        SDL_Surface* surface;
+        SDL_Texture* texture;
     };
 }
 
@@ -41,6 +48,7 @@ namespace gp{
         SDL_Renderer* renderer;
         bool running;
         Graph* graph;
+
     };
 }
 
