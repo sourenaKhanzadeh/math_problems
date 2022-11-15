@@ -179,36 +179,56 @@ namespace gp{
 
 namespace gp{
     void addLine(int m, int b){
-        // plot the line y = mx + b on the ticks
+        // get the window width and height
+        int w = Window::width;
+        int h = Window::height;
+        // draw a line from the center of the screen to the edge of the screen
 
-        // get the x and y coordinates of the line
-        int x1 = 0;
-        int y1 = m * x1 + b;
-        int x2 = Window::width;
-        int y2 = m * x2 + b;
-        
-        // flip it vertically
-        y1 = Window::height - y1;
-        y2 = Window::height - y2;
+        // get the x and y coordinates of the line on the cartesian plane
+        int x1 = -w/2;
+        int y1 = m * x1 + b * 100;
+        int x2 = w/2;
+        int y2 = m * x2 + b * 100;
 
-        // add the line to the lines vector
+        // flip vertically
+        y1 = -y1;
+        y2 = -y2;
+
+        // translate to the center of the screen
+        x1 += w/2;
+        y1 += h/2;
+        x2 += w/2;
+        y2 += h/2;
+
+
+        // create the line
         Window::lines.add(new Line(Window::renderer, x1, y1, x2, y2));
     }
 
     void addLine(int m, int b, Color *color){
-        // plot the line y = mx + b on the ticks
+        // get the window width and height
+        int w = Window::width;
+        int h = Window::height;
+        // draw a line from the center of the screen to the edge of the screen
 
-        // get the x and y coordinates of the line
-        int x1 = 0;
-        int y1 = m * x1 + b;
-        int x2 = Window::width;
-        int y2 = m * x2 + b;
-        
-        // flip it vertically
-        y1 = Window::height - y1;
-        y2 = Window::height - y2;
+        // get the x and y coordinates of the line on the cartesian plane
+        int x1 = -w/2;
+        int y1 = m * x1 + b * 100;
+        int x2 = w/2;
+        int y2 = m * x2 + b * 100;
 
-        // add the line to the lines vector
-        Window::lines.add(new Line(Window::renderer, x1, y1, x2, y2, color));
+        // flip vertically
+        y1 = -y1;
+        y2 = -y2;
+
+        // translate to the center of the screen
+        x1 += w/2;
+        y1 += h/2;
+        x2 += w/2;
+        y2 += h/2;
+
+
+        // create the line
+         Window::lines.add(new Line(Window::renderer, x1, y1, x2, y2, color));
     }
 }
