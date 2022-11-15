@@ -25,6 +25,17 @@ namespace gp{
             if(event.type == SDL_QUIT){
                 running = false;
             }
+            // if event is a scroll event
+            if(event.type == SDL_MOUSEWHEEL){
+                // if the scroll is up
+                if(event.wheel.y > 0){
+                    graph->zoomIn();
+                }
+                // if the scroll is down
+                if(event.wheel.y < 0){
+                    graph->zoomOut();
+                }
+            }
         }
 
         for(int i = 0; i < lines.size(); i++){
@@ -37,7 +48,6 @@ namespace gp{
         SDL_RenderClear(Window::renderer);
     }
     void Window::draw(){
-
         graph->draw();
         for(int i = 0; i < lines.size(); i++){
             lines[i]->draw();
@@ -52,6 +62,7 @@ namespace gp{
 }
 
 namespace gp{
+    bool Graph::zoom = false;
     Graph::Graph(SDL_Window* window, SDL_Renderer* renderer){
         this->window = window;
         this->renderer = renderer;
@@ -66,6 +77,8 @@ namespace gp{
         if(font == NULL){
             std::cout << "Failed to load font " << TTF_GetError() << std::endl;
         }
+        zoom_level = 100;
+        
 
     }
     
@@ -88,11 +101,11 @@ namespace gp{
         SDL_RenderDrawLine(renderer, width/2, 0, width/2, height);
 
         // draw the x ticks
-        for(int i = 0; i < width; i += 100){
+        for(int i = 0; i < width; i += zoom_level){
             SDL_RenderDrawLine(renderer, i, height/2 - 5, i, height/2 + 5);
         }
         // draw the y ticks
-        for(int i = 0; i < height; i += 100){
+        for(int i = 0; i < height; i += zoom_level){
             SDL_RenderDrawLine(renderer, width/2 - 5, i, width/2 + 5, i);
         }
 
@@ -102,11 +115,11 @@ namespace gp{
         displayText("y", width/2 + 20, 20);
 
         // draw the x tick labels
-        for(int i = 0; i < width; i += 50){
+        for(int i = 0; i < width; i += zoom_level/2){
             displayText(std::to_string(i - width/2).c_str(), i, height/2 + 20);
         }
         // draw the y tick labels
-        for(int i = 0; i < height; i += 50){
+        for(int i = 0; i < height; i += zoom_level/2){
             displayText(std::to_string(height/2 - i).c_str(), width/2 + 20, i);
         }
 
@@ -131,6 +144,28 @@ namespace gp{
     void Graph::update(){
 
     }
+
+    void Graph::zoomIn(){
+        zoom = true;
+        zoom_level++;
+        // zoom in lines
+        for(int i = 0; i < Window::lines.size(); i++){
+            Window::lines[i]->zoomIn();
+        }
+
+    }
+
+    void Graph::zoomOut(){
+        zoom = true;
+        zoom_level--;
+        if (zoom_level < 100){
+            zoom_level = 100;
+        }
+        // zoom out lines
+        for(int i = 0; i < Window::lines.size(); i++){
+            Window::lines[i]->zoomOut();
+        }
+    }
 }
 
 namespace gp{
@@ -152,6 +187,7 @@ namespace gp{
         this->y2 = y2;
         this->color = new Color(0, 0, 0, 255);
         this->renderer = renderer;
+        zoom_level = 0;
     }
 
     Line::Line(SDL_Renderer *renderer ,int x1, int y1, int x2, int y2, Color *color){
@@ -161,6 +197,7 @@ namespace gp{
         this->y2 = y2;
         this->color = color;
         this->renderer = renderer;
+        zoom_level = 0;
     }
 
     Line::~Line(){
@@ -169,12 +206,26 @@ namespace gp{
 
     void Line::draw(){
         SDL_SetRenderDrawColor(renderer, color->getR(), color->getG(), color->getB(), color->getA());
-        SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+        // add the zoom level to the x and y values
+        SDL_RenderDrawLine(renderer, x1 + zoom_level, y1 + zoom_level, x2 + zoom_level, y2 + zoom_level);
     }
     
     void Line::update(){
 
     }
+
+    void Line::zoomIn(){
+        zoom_level++;
+    }
+
+    void Line::zoomOut(){
+        zoom_level--;
+        if (zoom_level < 0){
+            zoom_level = 0;
+        }
+        
+    }
+
 }
 
 namespace gp{

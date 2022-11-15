@@ -23,6 +23,9 @@ namespace gp{
         void draw();
         void update();
         void displayText(const char* text, int x, int y);
+        void zoomIn();
+        void zoomOut();
+        static bool zoom;
     private:
         SDL_Window* window;
         int width, height;
@@ -31,6 +34,7 @@ namespace gp{
         TTF_Font* font;
         SDL_Surface* surface;
         SDL_Texture* texture;
+        int zoom_level;
     };
 }
 
@@ -56,10 +60,13 @@ namespace gp{
         ~Line();
         void update();
         void draw();
+        void zoomIn();
+        void zoomOut();
     private:
         int x1, y1, x2, y2;
         Color *color;
         SDL_Renderer* renderer;
+        int zoom_level;
     };
 }
 
